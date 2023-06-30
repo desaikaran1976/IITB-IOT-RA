@@ -151,7 +151,7 @@ void IIS3DWB::init(uint8_t Ascale)
   //writeByte(IIS3DWB_SLOPE_EN, 0x20);           // drive activity status to interrupt      
   //writeByte(IIS3DWB_INTERRUPTS_EN, 0x80);      // enable wakeup and activity/inactivity logic
   //writeByte(IIS3DWB_MD2_CFG, 0x80);            // route activity change event to INT2
-  writeByte(IIS3DWB_INT1_CTRL, 0x01);            // enable accel data ready on INT1 pin
+  //writeByte(IIS3DWB_INT1_CTRL, 0x01);            // enable accel data ready on INT1 pin
 }
 
 
