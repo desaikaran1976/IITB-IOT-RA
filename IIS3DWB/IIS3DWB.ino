@@ -84,7 +84,7 @@ void setup()
   while(1){};
   }
 
-  attachInterrupt(IIS3DWB_intPin1, myinthandler1, RISING);   // define interrupt for intPin1 output of IIS3DWB
+ // attachInterrupt(IIS3DWB_intPin1, myinthandler1, RISING);   // define interrupt for intPin1 output of IIS3DWB
  // attachInterrupt(IIS3DWB_intPin2, myinthandler2, FALLING);  // define interrupt for intPin2 output of IIS3DWB
 }
 /* End of setup */
@@ -95,20 +95,20 @@ void loop() {
 //     {
 //       IIS3DWB_DataReady = false;
       
-//      IIS3DWBstatus = IIS3DWB.DRstatus(); // read data ready status
-//      if (IIS3DWBstatus & 0x01) {         // if new accel data is available, read it
+     IIS3DWBstatus = IIS3DWB.DRstatus(); // read data ready status
+     if (IIS3DWBstatus & 0x01) {         // if new accel data is available, read it
 
-//         IIS3DWB.readAccelData(IIS3DWBData);  
-//   
-//         // Now we'll calculate the accleration value into actual g's
-//         ax = 1000.0*((float)IIS3DWBData[0]*aRes - accelBias[0]);  // get actual g value in mg, this depends on scale being set
-//         ay = 1000.0*((float)IIS3DWBData[1]*aRes - accelBias[1]);   
-//         az = 1000.0*((float)IIS3DWBData[2]*aRes - accelBias[2]);  
-//         Serial.write(0xAA); // Send the start/sync byte
-//         Serial.write((uint8_t*)&(ax), sizeof(ax));
-//         Serial.write((uint8_t*)&(ay), sizeof(ay));
-//         Serial.write((uint8_t*)&(az), sizeof(az));
-//       }
+        IIS3DWB.readAccelData(IIS3DWBData);  
+  
+        // Now we'll calculate the accleration value into actual g's
+        ax = 1000.0*((float)IIS3DWBData[0]*aRes - accelBias[0]);  // get actual g value in mg, this depends on scale being set
+        ay = 1000.0*((float)IIS3DWBData[1]*aRes - accelBias[1]);   
+        az = 1000.0*((float)IIS3DWBData[2]*aRes - accelBias[2]);  
+        Serial.write(0xAA); // Send the start/sync byte
+        Serial.write((uint8_t*)&(ax), sizeof(ax));
+        Serial.write((uint8_t*)&(ay), sizeof(ay));
+        Serial.write((uint8_t*)&(az), sizeof(az));
+      }
    //  }  // end of data ready interrupt handling
      
 //
@@ -140,20 +140,20 @@ void loop() {
 /*  End of main loop */
 
 
-void myinthandler1()
-{
-  //IIS3DWB_DataReady = true;
-   IIS3DWB.readAccelData(IIS3DWBData);  
+// void myinthandler1()
+// {
+//   //IIS3DWB_DataReady = true;
+//    IIS3DWB.readAccelData(IIS3DWBData);  
   
-   // Now we'll calculate the accleration value into actual g's
-   ax = 1000.0*((float)IIS3DWBData[0]*aRes - accelBias[0]);  // get actual g value in mg, this depends on scale being set
-   ay = 1000.0*((float)IIS3DWBData[1]*aRes - accelBias[1]);   
-   az = 1000.0*((float)IIS3DWBData[2]*aRes - accelBias[2]);  
-   Serial.write(0xAA); // Send the start/sync byte
-   Serial.write((uint8_t*)&(ax), sizeof(ax));
-   Serial.write((uint8_t*)&(ay), sizeof(ay));
-   Serial.write((uint8_t*)&(az), sizeof(az));
-}
+//    // Now we'll calculate the accleration value into actual g's
+//    ax = 1000.0*((float)IIS3DWBData[0]*aRes - accelBias[0]);  // get actual g value in mg, this depends on scale being set
+//    ay = 1000.0*((float)IIS3DWBData[1]*aRes - accelBias[1]);   
+//    az = 1000.0*((float)IIS3DWBData[2]*aRes - accelBias[2]);  
+//    Serial.write(0xAA); // Send the start/sync byte
+//    Serial.write((uint8_t*)&(ax), sizeof(ax));
+//    Serial.write((uint8_t*)&(ay), sizeof(ay));
+//    Serial.write((uint8_t*)&(az), sizeof(az));
+// }
 
 ////
 //void myinthandler2()
