@@ -6,7 +6,6 @@ const int8_t SYNC_BYTE = 0xAA
 unsigned long lastMicros = 0
 unsigned long MINIMUM_SAMPLING_DELAY_uSec = 1000;
 int16_t Waterflow_value = 0;
-long pre_update = 0;
 int16_t Sensor_ID = -1000;//Sensor_ID is dummy value to indentify the sensor by python code
 
 void setup() {
