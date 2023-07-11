@@ -28,10 +28,11 @@ void loop() {
   Pressure_value = 1000*((X_Intercept*Slope)+ P_min); //Further formula will be modified accordingly
   
   if((micros() - lastMicros) > MINIMUM_SAMPLING_DELAY_uSec){
+    lastMicros = micros();
     Serial.write(SYNC_BYTE);
     Serial.write((uint8_t*)&Pressure_value, sizeof(Pressure_value));
 
     Serial.write((uint8_t*)&Sensor_ID, sizeof(Sensor_ID)); 
-    lastMicros = micros();
+    
   }
 }

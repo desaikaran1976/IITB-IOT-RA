@@ -33,11 +33,11 @@ void loop() {
 //  Waterflow_value = 1000*((X_Intercept*Slope1)+ F_min); // for 800l/min range Further formula will be modified accordingly
   
   if((micros() - lastMicros) > MINIMUM_SAMPLING_DELAY_uSec){
+    lastMicros = micros();
     Serial.write(SYNC_BYTE);
     Serial.write((uint8_t*)&Waterflow_value, sizeof(Waterflow_value));
 
     Serial.write((uint8_t*)&Sensor_ID, sizeof(Sensor_ID)); 
-    lastMicros = micros();
-    
+
   }
 }
