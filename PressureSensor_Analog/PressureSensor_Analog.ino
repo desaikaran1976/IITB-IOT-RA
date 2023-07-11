@@ -8,6 +8,15 @@ unsigned long MINIMUM_SAMPLING_DELAY_uSec = 1000;
 int16_t Pressure_value = 0;
 int16_t Sensor_ID = -100;//Sensor_ID is dummy value to indentify the sensor by python code
 
+float P_min = 0;
+float P_FSR = 101.97;
+float C_min = 4; //mA
+float C_FSR = 20;
+float R = 350; //ohms
+
+float Slope = (P_FSR-P_min)/((C_FSR-C_min)*R); //Calculates Slope of mapping
+float X_Intercept;
+
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(1500000);
@@ -15,7 +24,8 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  Pressure_Value = analogRead(read_pin); //Further formula will be modified accordingly
+  X_Intercept = (3300*analogRead(read_pin)/4095)-C_min*R;
+  Pressure_Value = 1000*((X_Intercept*Slope)+ P_min); //Further formula will be modified accordingly
   
   if((micros() - lastMicros) > MINIMUM_SAMPLING_DELAY_uSec){
     Serial.write(SYNC_BYTE);
