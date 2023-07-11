@@ -1,11 +1,11 @@
 #include <Arduino.h>
 
 #define read_pin 34
-const int8_t SYNC_BYTE = 0xAA
+const int8_t SYNC_BYTE = 0xAA;
 
-unsigned long lastMicros = 0
+unsigned long lastMicros = 0;
 unsigned long MINIMUM_SAMPLING_DELAY_uSec = 1000;
-int16_t Waterflow_value = 0;
+uint32_t Waterflow_value = 0;
 int16_t Sensor_ID = -1000;//Sensor_ID is dummy value to indentify the sensor by python code
 
 float F_min = 0;
@@ -28,7 +28,7 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
 
-  X_Intercept = (3300*analogRead(read_pin)/4095)-C_min*R;
+  X_Intercept = (3300.0*analogRead(read_pin)/4095.0)-C_min*R;
   Waterflow_value = 1000*((X_Intercept*Slope)+ F_min); //for 500l/min range Further formula will be modified accordingly
 //  Waterflow_value = 1000*((X_Intercept*Slope1)+ F_min); // for 800l/min range Further formula will be modified accordingly
   
@@ -36,7 +36,6 @@ void loop() {
     Serial.write(SYNC_BYTE);
     Serial.write((uint8_t*)&Waterflow_value, sizeof(Waterflow_value));
 
-    Serial.write(SYNC_BYTE);
     Serial.write((uint8_t*)&Sensor_ID, sizeof(Sensor_ID)); 
     lastMicros = micros();
     
