@@ -25,7 +25,7 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
   X_Intercept = (3300.0*analogRead(read_pin)/4095.0)-C_min*R;
-  Pressure_Value = 1000*((X_Intercept*Slope)+ P_min); //Further formula will be modified accordingly
+  Pressure_value = 1000*((X_Intercept*Slope)+ P_min); //Further formula will be modified accordingly
   
   if((micros() - lastMicros) > MINIMUM_SAMPLING_DELAY_uSec){
     Serial.write(SYNC_BYTE);
