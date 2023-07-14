@@ -57,6 +57,11 @@ const char* password =  "iitbiot1234";
 String control_val = "";
 
 AsyncWebServer server(80);
+IPAddress staticIP(192, 168, 0, 185);
+
+IPAddress gateway(192, 168, 0, 1);
+IPAddress subnet(255, 255, 255, 0);
+IPAddress dns(0, 0, 0, 0);
 
 ///////////////CONSTRUCTORS//////////////
 MPU9250_WE myMPU9250 = MPU9250_WE(&SPI, MPU_CS_PIN, useSPI);    //VSPI
@@ -125,7 +130,7 @@ void MPU_GET( void * parameter ) {
 
 void setup() {
      Serial.begin(1500000);
-//    Serial.begin(115200);
+  //  Serial.begin(115200);
 
     xTaskCreatePinnedToCore(
         MPU_GET,     //TASK
@@ -138,14 +143,16 @@ void setup() {
     );
 
     // vTaskResume(MPU_GET_h);
-    
+    if (WiFi.config(staticIP, gateway, subnet, dns, dns) == false) {
+      Serial.println("Configuration failed.");
+    }    
     WiFi.mode(WIFI_STA);
     WiFi.begin(ssid, password); 
   // attempt to connect to Wifi network:
     while (WiFi.status() != WL_CONNECTED) {
         delay(1000);
     }
-  //Serial.println(WiFi.localIP());
+  Serial.println(WiFi.localIP());
 
     server.on(
       "/post",
@@ -161,7 +168,7 @@ void setup() {
         esp_task_wdt_init(10, false);
 
         // if(control_val == "ESP_RESTART"){
-    if(control_val == "MPU_RESET"){ 
+    if(control_val == "ESP_RESTART"){ 
           request->send(200);
           delay(500);
           ESP.restart();

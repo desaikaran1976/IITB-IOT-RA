@@ -25,7 +25,7 @@ AsyncWebServer server(80);
 TaskHandle_t DRV_GET_h = NULL;
 
 
-IPAddress staticIP(192, 168, 0, 186);
+IPAddress staticIP(192, 168, 0, 187);
 
 IPAddress gateway(192, 168, 0, 1);
 IPAddress subnet(255, 255, 255, 0);
@@ -34,7 +34,7 @@ IPAddress dns(0, 0, 0, 0);
 void DRV_GET(void *parameter){
   esp_task_wdt_delete(NULL);
   // vTaskSuspend(NULL);
-
+  calibrate_DRV(B_Value_bias);
   for(;;){
     esp_task_wdt_init(10, false);
     
@@ -47,6 +47,7 @@ void DRV_GET(void *parameter){
 ///////////////Setup//////////////
 void setup() {
   Serial.begin(1500000);
+  // Serial.begin(115200);
 
   
     xTaskCreatePinnedToCore(
@@ -68,10 +69,8 @@ void setup() {
   // attempt to connect to Wifi network:
     while (WiFi.status() != WL_CONNECTED) {
         delay(1000);
-    }
-    
-    
-//  Serial.println(WiFi.localIP());
+    }    
+ Serial.println(WiFi.localIP());
 
     server.on(
       "/post",
@@ -87,7 +86,7 @@ void setup() {
         esp_task_wdt_init(10, false);
 
         // if(control_val == "ESP_RESTART"){
-    if(control_val == "DRV_RESET"){ 
+    if(control_val == "ESP_RESTART"){ 
           request->send(200);
           delay(500);
           ESP.restart();
@@ -101,15 +100,12 @@ void setup() {
         control_val = "";
     });
   
-    server.begin();
-    
-    calibrate_DRV(B_Value_bias);
-  
+    server.begin(); 
 }
 
 void calibrate_DRV(int16_t B_Value_bias){  //pass array by ref
   
-  const int MINIMUM_SAMPLING_DELAY_uSEC = 100;  //250 because max sampling rate of accelerometer is 4 khz
+  const int MINIMUM_SAMPLING_DELAY_uSEC = 100;  //100 because max sampling rate of accelerometer is 4 khz
   
   B_Value_bias = 0;
   
