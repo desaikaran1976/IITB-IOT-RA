@@ -11,6 +11,8 @@
 
 const int8_t SYNC_BYTE = 0xAA;
 int16_t Bvalue = 0;
+const int16_t NUM_OF_CALIBRATION_SAMPLES = 5000;
+int16_t B_Value_bias;
 
 ///////////////WiFi-Setup//////////////
 const char* ssid = "IITB_IOT";
@@ -33,20 +35,18 @@ void DRV_GET(void *parameter){
   esp_task_wdt_delete(NULL);
   // vTaskSuspend(NULL);
 
-//  calibrate_DRV(float B_Value_bias[]);
-
   for(;;){
     esp_task_wdt_init(10, false);
     
     //Bvalue = ((analogRead(read_pin) - 2048) * 3.3)/4096;
-    Bvalue = analogRead(read_pin);
+    Bvalue = analogRead(read_pin)-B_Value_bias;
     Serial.write(SYNC_BYTE); // Send the start/sync byte
     Serial.write((uint8_t*)&(Bvalue), sizeof(Bvalue));
   }
 }
 ///////////////Setup//////////////
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(1500000);
 
   
     xTaskCreatePinnedToCore(
@@ -102,7 +102,26 @@ void setup() {
     });
   
     server.begin();
+    
+    calibrate_DRV(B_Value_bias);
   
+}
+
+void calibrate_DRV(int16_t B_Value_bias){  //pass array by ref
+  
+  const int MINIMUM_SAMPLING_DELAY_uSEC = 100;  //250 because max sampling rate of accelerometer is 4 khz
+  
+  B_Value_bias = 0;
+  
+  for(int i=0; i<NUM_OF_CALIBRATION_SAMPLES; i++){
+
+    B_Value_bias = B_Value_bias + analogRead(read_pin);
+    delayMicroseconds(MINIMUM_SAMPLING_DELAY_uSEC); //delay because max sampling rate of accelerometer is 4 khz
+
+  }
+  
+  B_Value_bias = B_Value_bias/NUM_OF_CALIBRATION_SAMPLES; // Avg Bias
+  B_Value_bias = 2048 - B_Value_bias; //  Avg Bias wrt 2048 which is VCC/2
 }
 
 void loop() {
