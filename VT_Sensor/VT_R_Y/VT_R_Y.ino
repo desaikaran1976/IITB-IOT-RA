@@ -1,7 +1,7 @@
 #include <Arduino.h>
 
 #define read_pin_VT_R 34
-#define read_pin_VT_Y 35
+#define read_pin_VT_Y 32
 
 const int8_t SYNC_BYTE = 0xAA;
 
@@ -14,7 +14,7 @@ void setup() {
 
 void loop() {
 
-  VT_R_value = analogRead(read_pin_VT_R);
+  VT_R_value = analogRead(read_pin_VT_R)+5000;
   VT_Y_value = analogRead(read_pin_VT_Y);
   Serial.write(SYNC_BYTE); // Send the start/sync byte
   Serial.write((uint8_t*)&(VT_R_value), sizeof(VT_R_value));
