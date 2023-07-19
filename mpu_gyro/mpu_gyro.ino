@@ -31,9 +31,6 @@ ESP_RESTART - Restart ESP
 //VSPI
 #define MPU_CS_PIN        5
 
-int16_t Ax {0};
-int16_t Ay {0};
-int16_t Az {0};
 int16_t Gx {0};
 int16_t Gy {0};
 int16_t Gz {0};
@@ -47,8 +44,9 @@ unsigned long lastMicros = 0, lastMicros2 = 0;
 const int16_t MAX_SAMPLING_FREQ = 4000;
 const int16_t NUM_OF_CALIBRATION_SAMPLES = 5000;
 unsigned long MINIMUM_SAMPLING_DELAY_uSec = (unsigned long)(1 * 1000000 / MAX_SAMPLING_FREQ);
-const int16_t gyr_factor = 100;
+const int16_t gyr_factor = 10;
 const int16_t acc_factor = 10000;
+const int16_t gyro_offset = 10000;
 
 ///////////////WiFi-Setup//////////////
 const char* ssid = "IITB_IOT";
@@ -93,30 +91,14 @@ void MPU_GET( void * parameter ) {
   for (;;) {
     esp_task_wdt_init(10, false);
 
-//    if (micros() >= (lastMicros + MINIMUM_SAMPLING_DELAY_uSec)) {
-//    lastMicros = micros();
-//    xyzFloat gValue = myMPU9250.getGValues();
    xyzFloat gyr = myMPU9250.getGyrValues();
 
-        // Ax = (gValue.x)*acc_factor;
-        // Ay = (gValue.y)*acc_factor;
-        // Az = (gValue.z)*acc_factor;
-        // Gx = (gyr.x)*gyr_factor;
-        // Gy = (gyr.y)*gyr_factor;
-        // Gz = (gyr.z)*gyr_factor;
-    
-
-//        Ax = (gValue.x - Acc_bias[0])*acc_factor;
-//        Ay = (gValue.y  - Acc_bias[1])*acc_factor;
-//        Az = (gValue.z - Acc_bias[2])*acc_factor;
-        Gx = (gyr.x - Gyro_bias[0])*gyr_factor;
-        Gy = (gyr.y - Gyro_bias[1])*gyr_factor;
-        Gz = (gyr.z - Gyro_bias[2])*gyr_factor;
+        Gx = (gyr.x - Gyro_bias[0])*gyr_factor + gyro_offset;
+        Gy = (gyr.y - Gyro_bias[1])*gyr_factor + gyro_offset;
+        Gz = (gyr.z - Gyro_bias[2])*gyr_factor + gyro_offset;
 
         Serial.write(SYNC_BYTE); // Send the start/sync byte
-//        Serial.write((uint8_t*)&(Ax), sizeof(Ax));
-//        Serial.write((uint8_t*)&(Ay), sizeof(Ay));
-//        Serial.write((uint8_t*)&(Az), sizeof(Az));
+
         Serial.write((uint8_t*)&(Gx), sizeof(Gx));
         Serial.write((uint8_t*)&(Gy), sizeof(Gy));
         Serial.write((uint8_t*)&(Gz), sizeof(Gz));
@@ -144,15 +126,15 @@ void setup() {
 
     // vTaskResume(MPU_GET_h);
     if (WiFi.config(staticIP, gateway, subnet, dns, dns) == false) {
-      Serial.println("Configuration failed.");
+      // Serial.println("Configuration failed.");
     }    
     WiFi.mode(WIFI_STA);
     WiFi.begin(ssid, password); 
   // attempt to connect to Wifi network:
-    while (WiFi.status() != WL_CONNECTED) {
-        delay(1000);
+    if (WiFi.status() != WL_CONNECTED) {
+        // delay(1000);
     }
-  Serial.println(WiFi.localIP());
+  // Serial.println(WiFi.localIP());
 
     server.on(
       "/post",
@@ -172,11 +154,6 @@ void setup() {
           request->send(200);
           delay(500);
           ESP.restart();
-          // vTaskSuspend(MPU_GET_h);
-          // delay(500);
-          // calibrate_MPU(Acc_bias,Gyro_bias);
-          // delay(500);
-          // vTaskResume(MPU_GET_h);
         }
         
         control_val = "";
@@ -210,20 +187,16 @@ void connect_to_wifi() {
 
 void calibrate_MPU(float acc_bias[], float gyro_bias[]) {  //pass array by ref
   
-  const int MPU9250_MINIMUM_SAMPLING_DELAY_uSEC = 250;  //250 because max sampling rate of accelerometer is 4 khz
+  const int MPU9250_MINIMUM_SAMPLING_DELAY_uSEC = 50;  //250 because max sampling rate of accelerometer is 4 khz
   
   for(int i=0; i<3; i++) {
     gyro_bias[i] = 0.0;
-    acc_bias[i] = 0.0;
+ 
   }
   
   for(int i=0; i<NUM_OF_CALIBRATION_SAMPLES; i++){
     xyzFloat gValue = myMPU9250.getGValues();
     xyzFloat gyr = myMPU9250.getGyrValues();
-    
-    acc_bias[0] = acc_bias[0] + (gValue.x);
-    acc_bias[1] = acc_bias[1] + (gValue.y);
-    acc_bias[2] = acc_bias[2] + (gValue.z);
     gyro_bias[0] = gyro_bias[0] + (gyr.x);
     gyro_bias[1] = gyro_bias[1] + (gyr.y);
     gyro_bias[2] = gyro_bias[2] + (gyr.z);
@@ -233,8 +206,5 @@ void calibrate_MPU(float acc_bias[], float gyro_bias[]) {  //pass array by ref
   
   for(int i=0; i<3; i++){
     gyro_bias[i] = gyro_bias[i]/NUM_OF_CALIBRATION_SAMPLES;
-    acc_bias[i] = acc_bias[i]/NUM_OF_CALIBRATION_SAMPLES;
   }
-  acc_bias[2] = acc_bias[2] - 1; //z axis -
-  // Serial.printf("%f, %f, %f, %f, %f, %f \n", acc_bias[0], acc_bias[1], acc_bias[2], gyro_bias[0], gyro_bias[1], gyro_bias[2]); 
 }

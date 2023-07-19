@@ -12,7 +12,8 @@
 const int8_t SYNC_BYTE = 0xAA;
 int16_t Bvalue = 0;
 const int16_t NUM_OF_CALIBRATION_SAMPLES = 5000;
-int16_t B_Value_bias;
+int32_t B_Value_bias;
+// int16_t B_bias_16;
 
 ///////////////WiFi-Setup//////////////
 const char* ssid = "IITB_IOT";
@@ -34,12 +35,13 @@ IPAddress dns(0, 0, 0, 0);
 void DRV_GET(void *parameter){
   esp_task_wdt_delete(NULL);
   // vTaskSuspend(NULL);
-  calibrate_DRV(B_Value_bias);
+  calibrate_DRV();
   for(;;){
     esp_task_wdt_init(10, false);
     
     //Bvalue = ((analogRead(read_pin) - 2048) * 3.3)/4096;
-    Bvalue = analogRead(read_pin)-B_Value_bias;
+    Bvalue = analogRead(read_pin)-int16_t(B_Value_bias);
+    // B_bias_16 = int16_t(B_Value_bias);
     Serial.write(SYNC_BYTE); // Send the start/sync byte
     Serial.write((uint8_t*)&(Bvalue), sizeof(Bvalue));
   }
@@ -62,15 +64,14 @@ void setup() {
     
     // vTaskResume(MPU_GET_h);
     if (WiFi.config(staticIP, gateway, subnet, dns, dns) == false) {
-      Serial.println("Configuration failed.");
+      // Serial.println("Configuration failed.");
     }
     WiFi.mode(WIFI_STA);
     WiFi.begin(ssid, password); 
   // attempt to connect to Wifi network:
-    while (WiFi.status() != WL_CONNECTED) {
-        delay(1000);
+    if (WiFi.status() != WL_CONNECTED) {
+        // delay(1000);
     }    
- Serial.println(WiFi.localIP());
 
     server.on(
       "/post",
@@ -103,21 +104,20 @@ void setup() {
     server.begin(); 
 }
 
-void calibrate_DRV(int16_t B_Value_bias){  //pass array by ref
+void calibrate_DRV(){  //pass array by ref
   
-  const int MINIMUM_SAMPLING_DELAY_uSEC = 100;  //100 because max sampling rate of accelerometer is 4 khz
+  const int MINIMUM_SAMPLING_DELAY_uSEC = 50;  //100 because max sampling rate of accelerometer is 4 khz
   
   B_Value_bias = 0;
   
   for(int i=0; i<NUM_OF_CALIBRATION_SAMPLES; i++){
-
-    B_Value_bias = B_Value_bias + analogRead(read_pin);
+    
+    B_Value_bias = B_Value_bias + (analogRead(read_pin)-2048); //  Avg Bias wrt 2048 which is VCC/2
     delayMicroseconds(MINIMUM_SAMPLING_DELAY_uSEC); //delay because max sampling rate of accelerometer is 4 khz
 
   }
   
-  B_Value_bias = B_Value_bias/NUM_OF_CALIBRATION_SAMPLES; // Avg Bias
-  B_Value_bias = 2048 - B_Value_bias; //  Avg Bias wrt 2048 which is VCC/2
+  B_Value_bias = B_Value_bias/NUM_OF_CALIBRATION_SAMPLES; // Int16_t value of B_Value_bias required thus float operation not performed
 }
 
 void loop() {
