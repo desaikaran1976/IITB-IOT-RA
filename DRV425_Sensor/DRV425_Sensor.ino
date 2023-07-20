@@ -12,8 +12,8 @@
 const int8_t SYNC_BYTE = 0xAA;
 int16_t Bvalue = 0;
 const int16_t NUM_OF_CALIBRATION_SAMPLES = 5000;
-int32_t B_Value_bias;
-// int16_t B_bias_16;
+int32_t B_Value_bias = 0;
+int16_t B_bias_int16 = 0;
 
 ///////////////WiFi-Setup//////////////
 const char* ssid = "IITB_IOT";
@@ -38,11 +38,15 @@ void DRV_GET(void *parameter){
   calibrate_DRV();
   for(;;){
     esp_task_wdt_init(10, false);
-    
+    // int16_t s = analogRead(read_pin);
     //Bvalue = ((analogRead(read_pin) - 2048) * 3.3)/4096;
-    Bvalue = analogRead(read_pin)-int16_t(B_Value_bias);
     // B_bias_16 = int16_t(B_Value_bias);
+    Bvalue = analogRead(read_pin) - B_bias_int16;
+
+
     Serial.write(SYNC_BYTE); // Send the start/sync byte
+    // Serial.write((uint8_t*)&(B_bias_16), sizeof(B_bias_16));
+    // Serial.write((uint8_t*)&(s), sizeof(s));
     Serial.write((uint8_t*)&(Bvalue), sizeof(Bvalue));
   }
 }
@@ -118,12 +122,13 @@ void calibrate_DRV(){  //pass array by ref
   }
   
   B_Value_bias = B_Value_bias/NUM_OF_CALIBRATION_SAMPLES; // Int16_t value of B_Value_bias required thus float operation not performed
+  B_bias_int16 = int16_t(B_Value_bias);
 }
 
 void loop() {
 
   delay(1000);
-  // vTaskDelete(NULL)
+  // //vTaskDelete(NULL)
   connect_to_wifi();
 
 
