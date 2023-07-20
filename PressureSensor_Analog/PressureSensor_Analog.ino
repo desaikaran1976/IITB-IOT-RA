@@ -6,7 +6,7 @@ const int8_t SYNC_BYTE = 0xAA;
 unsigned long lastMicros = 0;
 unsigned long MINIMUM_SAMPLING_DELAY_uSec = 1000;
 uint32_t Pressure_value = 0;
-int16_t Sensor_ID = -100;//Sensor_ID is dummy value to indentify the sensor by python code
+uint32_t Sensor_ID = -100;//Sensor_ID is dummy value to indentify the sensor by python code
 
 float P_min = 0;
 float P_FSR = 101.97;
