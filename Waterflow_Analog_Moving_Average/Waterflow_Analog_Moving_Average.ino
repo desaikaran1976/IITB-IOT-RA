@@ -7,14 +7,14 @@ const int8_t SYNC_BYTE = 0xAA;
 
 unsigned long lastMicros = 0;
 unsigned long MINIMUM_SAMPLING_DELAY_uSec = 1000;
-uint32_t Waterflow_value = 0;
-uint32_t Sensor_ID = -1000;//Sensor_ID is dummy value to indentify the sensor by python code
+int32_t Waterflow_value = 0;
+int32_t Sensor_ID = -1000;//Sensor_ID is dummy value to indentify the sensor by python code
 int No_of_element = 0;
-uint32_t value[10];
-uint32_t i=0;
+int32_t value[10];
+int32_t i=0;
 
-uint32_t Sum = 0;
-uint32_t Value = 0;
+int32_t Sum = 0;
+int32_t Value = 0;
 
 
 float F_min = 0;
@@ -34,6 +34,8 @@ void setup() {
 }
 
 void loop() {
+    if((micros() - lastMicros) > MINIMUM_SAMPLING_DELAY_uSec){
+    lastMicros = micros();
   // put your main code here, to run repeatedly:
   X_Intercept = (3300.0*analogRead(read_pin)/4095.0)-C_min*R;
   // Waterflow_value = 1000*((X_Intercept*Slope)+ F_min); //for 500l/min range Further formula will be modified accordingly
@@ -52,14 +54,13 @@ void loop() {
     value[i] = Waterflow_value;
   }
   
-  if((micros() - lastMicros) > MINIMUM_SAMPLING_DELAY_uSec){
-    lastMicros = micros();
+
     Value = Sum/No_of_element;
     Serial.write(SYNC_BYTE);
     Serial.write((uint8_t*)&Waterflow_value, sizeof(Waterflow_value));
 
     Serial.write((uint8_t*)&Sensor_ID, sizeof(Sensor_ID)); 
-
+    i = (i+1)%10;
   }
-i = (i+1)%10;
+
 }
