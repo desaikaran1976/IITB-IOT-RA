@@ -9,11 +9,9 @@ unsigned long lastMicros = 0;
 unsigned long MINIMUM_SAMPLING_DELAY_uSec = 1000;
 uint32_t Waterflow_value = 0;
 uint32_t Sensor_ID = -1000;//Sensor_ID is dummy value to indentify the sensor by python code
-const int No_of_element = 0;
-uint32_t value[10] = 0;
-uint32_t i=0
-int head = 0;
-int tail = 0;
+int No_of_element = 0;
+uint32_t value[10];
+uint32_t i=0;
 
 uint32_t Sum = 0;
 uint32_t Value = 0;
@@ -51,7 +49,7 @@ void loop() {
   }
   else{
     Sum+=Waterflow_value - value[i];
-    value[head] = Waterflow_value;
+    value[i] = Waterflow_value;
   }
   
   if((micros() - lastMicros) > MINIMUM_SAMPLING_DELAY_uSec){
