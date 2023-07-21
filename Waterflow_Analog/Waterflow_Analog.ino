@@ -11,7 +11,7 @@ uint32_t Sensor_ID = -1000;//Sensor_ID is dummy value to indentify the sensor by
 float F_min = 0;
 float F_FSR = 500;
 float F_FSR1 = 800;
-float C_min = 4; //mA
+float C_min = 3.375; //mA
 float C_FSR = 20;
 float R = 240; //ohms
 
@@ -30,7 +30,7 @@ void loop() {
 
   X_Intercept = (3300.0*analogRead(read_pin)/4095.0)-C_min*R;
   // Waterflow_value = 1000*((X_Intercept*Slope)+ F_min); //for 500l/min range Further formula will be modified accordingly
-  Waterflow_value = 1000*((X_Intercept*Slope1)+ F_min); // for 800l/min range Further formula will be modified accordingly
+  Waterflow_value = ((X_Intercept*Slope1)+ F_min); // for 800l/min range Further formula will be modified accordingly
   
   if((micros() - lastMicros) > MINIMUM_SAMPLING_DELAY_uSec){
     lastMicros = micros();
