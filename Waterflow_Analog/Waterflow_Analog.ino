@@ -19,7 +19,6 @@ float R = 240; //ohms
 float Slope1 = (F_FSR1-F_min)/((C_FSR-C_min)*R); //Calculates Slope of mapping for 800l/min range
 float X_Intercept;
 
-
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(1500000);
