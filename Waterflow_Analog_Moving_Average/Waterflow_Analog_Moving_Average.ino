@@ -9,12 +9,14 @@ unsigned long lastMicros = 0;
 unsigned long MINIMUM_SAMPLING_DELAY_uSec = 1000;
 int32_t Waterflow_value = 0;
 int32_t Sensor_ID = -1000;//Sensor_ID is dummy value to indentify the sensor by python code
-int No_of_element = 0;
-int32_t value[10];
+float No_of_element = 0.0;
+const int wtf_window_size = 30; //wtf i.e. waterflow
+int32_t value[wtf_window_size];
 int32_t i=0;
 
+
 int32_t Sum = 0;
-int32_t Value = 0;
+int32_t wtf_running_avg = 0;
 
 
 float F_min = 0;
@@ -36,31 +38,40 @@ void setup() {
 void loop() {
     if((micros() - lastMicros) > MINIMUM_SAMPLING_DELAY_uSec){
     lastMicros = micros();
+    int32_t adc_average = 0.0;
+    int adc_average_iters = 20;
+    for (int k=0; k<adc_average_iters; k++){
+
+      adc_average = adc_average + analogRead(read_pin);
+      delayMicroseconds(10);
+    }
+    adc_average = adc_average/adc_average_iters;
+    // int32_t a = int32_t(adc_average);
+
   // put your main code here, to run repeatedly:
-  X_Intercept = (3300.0*analogRead(read_pin)/4095.0)-C_min*R;
+  X_Intercept = (3300.0*adc_average/4095.0)-C_min*R;
   // Waterflow_value = 1000*((X_Intercept*Slope)+ F_min); //for 500l/min range Further formula will be modified accordingly
   Waterflow_value = ((X_Intercept*Slope1)+ F_min); // for 800l/min range Further formula will be modified accordingly
 
   // value[i] = Waterflow_value;
   // head = (i)%10;
   // tail = (9-i)%10;
-  if(No_of_element<10){
+  if(No_of_element<wtf_window_size){
     Sum+=Waterflow_value;
     value[i] = Waterflow_value;
-    No_of_element++;
+    No_of_element = No_of_element+1;
   }
   else{
-    Sum+=Waterflow_value - value[i];
-    value[i] = Waterflow_value;
+    Sum+=Waterflow_value - value[i]; //circular buffer
+    value[i] = Waterflow_value;  //circular buffer update
   }
   
-
-    Value = Sum/No_of_element;
+    wtf_running_avg = Sum/No_of_element;
     Serial.write(SYNC_BYTE);
-    Serial.write((uint8_t*)&Waterflow_value, sizeof(Waterflow_value));
+    Serial.write((uint8_t*)&wtf_running_avg, sizeof(wtf_running_avg));
 
     Serial.write((uint8_t*)&Sensor_ID, sizeof(Sensor_ID)); 
-    i = (i+1)%10;
+    i = (i+1)%wtf_window_size; //circular buffer position update
   }
 
 }
