@@ -78,7 +78,14 @@ void setup()
 //  Serial.print("IIS3DWB "); Serial.print("I AM "); Serial.print(c, HEX); Serial.print(" I should be "); Serial.println(0x7B, HEX);
   //Serial.println(" ");
 
-  if(c == 0x7B) // check if all SPI sensors have acknowledged
+  // c = 0x11;
+  // delay(2000);
+
+  if (c != 0x7B) {
+    // Serial.end();
+    // c = IIS3DWB.getChipID();
+  }
+  else if(c == 0x7B) // check if all SPI sensors have acknowledged
   {
    //Serial.println("IIS3DWB is online...");  
    //Serial.println(" ");
@@ -102,11 +109,11 @@ void setup()
    
    //digitalWrite(myLed, HIGH); // turn off led when sensor configuration is finished
   }
-  else 
-  {
-  if(c != 0x6A) //Serial.println(" IIS3DWB not functioning!"); 
-  while(1){};
-  }
+  // else 
+  // {
+  // // if(c != 0x6A) //Serial.println(" IIS3DWB not functioning!"); 
+  // while(1){};
+  // }
 
  // attachInterrupt(IIS3DWB_intPin1, myinthandler1, RISING);   // define interrupt for intPin1 output of IIS3DWB
  // attachInterrupt(IIS3DWB_intPin2, myinthandler2, FALLING);  // define interrupt for intPin2 output of IIS3DWB
