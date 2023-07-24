@@ -17,6 +17,7 @@ int32_t i=0;
 
 int32_t Sum = 0;
 int32_t wtf_running_avg = 0;
+int32_t wtf_avg_LR_corrected = 0;
 
 
 float F_min = 0;
@@ -25,6 +26,11 @@ float F_FSR1 = 800;
 float C_min = 3.375; //mA
 float C_FSR = 20;
 float R = 240; //ohms
+float LR_Slope = 1.0346; // when 0 of WTF_Actual corresponds to 0 of WTF_Avg_ESP
+float LR_offset = -0.2662;
+float LR_Slope1 = 0.9801; //when 0 of WTF_Actual corresponds to -14 of WTF_Avg_ESP
+float LR_offset1 = 7.9978;
+float multi_fac = 10.0;
 
 // float Slope = (F_FSR-F_min)/((C_FSR-C_min)*R); //Calculates Slope of mapping for 500l/min range
 float Slope1 = (F_FSR1-F_min)/((C_FSR-C_min)*R); //Calculates Slope of mapping for 800l/min range
@@ -66,8 +72,11 @@ void loop() {
   }
   
     wtf_running_avg = Sum/No_of_element;
+    wtf_avg_LR_corrected = multi_fac*(LR_Slope*float(wtf_running_avg) + LR_offset); // when 0 of WTF_Actual corresponds to 0 of WTF_Avg_ESP
+    //wtf_avg_LR_corrected = multi_fac*(LR_Slope1*float(wtf_running_avg) + LR_offset1); //when 0 of WTF_Actual corresponds to -14 of WTF_Avg_ESP
+
     Serial.write(SYNC_BYTE);
-    Serial.write((uint8_t*)&wtf_running_avg, sizeof(wtf_running_avg));
+    Serial.write((uint8_t*)&wtf_avg_LR_corrected, sizeof(wtf_avg_LR_corrected));
 
     Serial.write((uint8_t*)&Sensor_ID, sizeof(Sensor_ID)); 
     i = (i+1)%wtf_window_size; //circular buffer position update

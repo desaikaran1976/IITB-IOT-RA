@@ -15,12 +15,16 @@ int32_t i=0;
 
 int32_t Sum = 0;
 int32_t prs_running_avg = 0;
+int32_t prs_avg_LR_corrected = 0;
 
 float P_min = 0;
 float P_FSR = 101.97;
 float C_min = 4; //mA
 float C_FSR = 20;
 float R = 350; //ohms
+float LR_Slope = 1.0564;
+float LR_offset = 3.3974;
+float multi_fac = 10.0;
 
 float Slope = (P_FSR-P_min)/((C_FSR-C_min)*R); //Calculates Slope of mapping
 float X_Intercept;
@@ -55,8 +59,9 @@ void loop() {
   }
   
     prs_running_avg = Sum/No_of_element;
+    prs_avg_LR_corrected = multi_fac*(LR_Slope*float(prs_running_avg) + LR_offset);
     Serial.write(SYNC_BYTE);
-    Serial.write((uint8_t*)&prs_running_avg, sizeof(prs_running_avg));
+    Serial.write((uint8_t*)&prs_avg_LR_corrected, sizeof(prs_avg_LR_corrected));
 
     Serial.write((uint8_t*)&Sensor_ID, sizeof(Sensor_ID)); 
     i = (i+1)%prs_window_size; //circular buffer position update
