@@ -55,8 +55,8 @@ void loop() {
     // int32_t a = int32_t(adc_average);
 
   X_Intercept = (3300.0*adc_average/4095.0)-C_min*R;
-  // Waterflow_value = 1000*((X_Intercept*Slope)+ F_min); //for 500l/min range Further formula will be modified accordingly
-  Waterflow_value = ((X_Intercept*Slope1)+ F_min); // for 800l/min range Further formula will be modified accordingly
+  Waterflow_value = ((X_Intercept*Slope)+ F_min); //for 500l/min range Further formula will be modified accordingly
+  // Waterflow_value = ((X_Intercept*Slope1)+ F_min); // for 800l/min range Further formula will be modified accordingly
 
   // value[i] = Waterflow_value;
   // head = (i)%10;
