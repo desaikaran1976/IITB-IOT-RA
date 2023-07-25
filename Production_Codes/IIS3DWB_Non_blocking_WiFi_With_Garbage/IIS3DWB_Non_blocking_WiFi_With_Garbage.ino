@@ -40,7 +40,8 @@ IPAddress dns(0, 0, 0, 0);
 bool Send_Garabage_Flag = false;
 int16_t Garbage_value = -5000;
 
-uint8_t Ascale = AFS_4G;  
+// uint8_t Ascale = AFS_4G;  
+uint8_t Ascale = AFS_2G;
 float aRes;                              // scale resolutions per LSB for the accel 
 float accelBias[3] = {0.0f, 0.0f, 0.0f}; // offset biases for the accel 
 int16_t IIS3DWBData[3] = {0};                  // Stores the 16-bit signed sensor output

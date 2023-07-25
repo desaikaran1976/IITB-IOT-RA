@@ -80,8 +80,9 @@ void MPU_GET( void * parameter ) {
   delay(1000);
   myMPU9250.autoOffsets();
   myMPU9250.disableGyrDLPF(MPU9250_BW_WO_DLPF_8800); // bandwdith without DLPF
-  myMPU9250.setGyrRange(MPU9250_GYRO_RANGE_500);
-  myMPU9250.setAccRange(MPU9250_ACC_RANGE_4G);
+  // myMPU9250.setGyrRange(MPU9250_GYRO_RANGE_500);
+  myMPU9250.setGyrRange(MPU9250_GYRO_RANGE_250);
+  myMPU9250.setAccRange(MPU9250_ACC_RANGE_2G);
   myMPU9250.enableAccDLPF(false);
   myMPU9250.setAccDLPF(MPU9250_DLPF_6);
   myMPU9250.setMagOpMode(AK8963_CONT_MODE_100HZ);
