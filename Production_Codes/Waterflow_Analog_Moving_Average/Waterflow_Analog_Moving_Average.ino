@@ -32,8 +32,8 @@ float LR_Slope1 = 0.9801; //when 0 of WTF_Actual corresponds to -14 of WTF_Avg_E
 float LR_offset1 = 7.9978;
 float multi_fac = 10.0;
 
-// float Slope = (F_FSR-F_min)/((C_FSR-C_min)*R); //Calculates Slope of mapping for 500l/min range
-float Slope1 = (F_FSR1-F_min)/((C_FSR-C_min)*R); //Calculates Slope of mapping for 800l/min range
+float Slope = (F_FSR-F_min)/((C_FSR-C_min)*R); //Calculates Slope of mapping for 500l/min range
+// float Slope1 = (F_FSR1-F_min)/((C_FSR-C_min)*R); //Calculates Slope of mapping for 800l/min range
 float X_Intercept;
 
 void setup() {
